@@ -19,6 +19,7 @@
     "@tanstack/react-virtual": "^3.8.4",
     "@wyw-in-js/babel-preset": "^0.5.4",
     "@wyw-in-js/vite": "^0.5.4",
+    "fastest-levenshtein": "^1.0.16",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "vite-plugin-biome": "^1.0.12"

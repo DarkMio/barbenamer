@@ -1,11 +1,12 @@
-import { type FC, useEffect, useMemo, useRef, useState } from "react";
-import "./App.css";
 import { css, cx } from "@linaria/core";
+import { type FC, useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "./Icon";
+import BackgroundImage from "./assets/barbie-screen.png";
 import names from "./assets/names.json";
 import DownloadIcon from "./icons/download-24.svg";
 
 import { useVirtualizer } from "@tanstack/react-virtual";
+import { closest } from "fastest-levenshtein";
 
 type PhoneticName = keyof typeof names;
 type WrittenName = string & { __writtenNameBrand: never };
@@ -35,19 +36,52 @@ const makeIndex = () => {
 const index = makeIndex();
 
 const appLayoutClass = css`
-  #root {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 2rem;
-    text-align: center;
-  }
-`;
+
+
+
+    aspect-ratio: 1280/960;
+    background: url(${BackgroundImage});
+
+    width: 100%;
+    height: 100%;
+
+    > ._input {
+      position: relative;
+      top: 33.8333%;
+      left: 0.4%;  // 38.90625%;
+      // right: 38.125%;
+      height: 3.566%;
+      width: 22.56875%;
+      background: transparent;
+      font-family: 'Arial';
+      font-weight: 700;
+      font-size: 24px;
+      color: #000;
+      border: none;
+      caret-shape: underscore;
+
+      &:focus {
+        outline: none;
+        border-color: inherit;
+        box-shadow: none;
+      }
+    }
+  `;
 
 const nameListClass = css`
-  max-height: 450px;
-  width: 300px;
+  position: relative;
+  top: 34.8%;
+  left: -7.5%;
+  max-height: 39.6%;
+  width: 23.05%;
   margin: 24px auto 24px auto;
   overflow: auto;
+  color: #000000;
+  font-family: 'Arial';
+  font-weight: 700;
+  font-size: 24px;
+
+  scrollbar-width: none;
 
   > ._list {
     position: relative;
@@ -61,6 +95,7 @@ const nameListClass = css`
       height: 24px;
       top: 0;
       left: 0;
+      padding: 0 10px;
       width: 100%;
 
       gap: 24px;
@@ -77,7 +112,7 @@ const nameListClass = css`
         visibility: hidden;
       }
       &._selected {
-        background: #333;
+        background: #f8b7d8;
       }
 
       :hover {
@@ -112,13 +147,48 @@ export const fuzzyMatch = (input: string, comparison: string) => {
 
 const audioPlayer = new Audio();
 
+export function levenshtein(a: string, b: string): number {
+  const an = a ? a.length : 0;
+  const bn = b ? b.length : 0;
+  if (an === 0) {
+    return bn;
+  }
+  if (bn === 0) {
+    return an;
+  }
+  const matrix = new Array<number[]>(bn + 1);
+  for (let i = 0; i <= bn; ++i) {
+    matrix[i] = [an + 1];
+    const row = matrix[i];
+    row[0] = i;
+  }
+  const firstRow = matrix[0];
+  for (let j = 1; j <= an; ++j) {
+    firstRow[j] = j;
+  }
+  for (let i = 1; i <= bn; ++i) {
+    for (let j = 1; j <= an; ++j) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] =
+          Math.min(
+            matrix[i - 1][j - 1], // substitution
+            matrix[i][j - 1], // insertion
+            matrix[i - 1][j], // deletion
+          ) + 1;
+      }
+    }
+  }
+  return matrix[bn][an];
+}
+
 const NameList: FC<{
   filter?: string;
 }> = ({ filter }) => {
   const [selection, setSelection] = useState<{ name: WrittenName; time: number } | undefined>();
 
   useEffect(() => {
-    console.log("effect");
     if (!selection) {
       return;
     }
@@ -140,8 +210,20 @@ const NameList: FC<{
   const rowVirtualizer = useVirtualizer({
     count: filteredNames.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 24,
+    estimateSize: () => 30,
   });
+
+  useEffect(() => {
+    if (filter) {
+      const match = closest(filter, filteredNames) as WrittenName;
+      const index = filteredNames.indexOf(match);
+      rowVirtualizer.scrollToIndex(index + 2, { behavior: "smooth" });
+      const handle = setTimeout(() => {
+        setSelection({ name: filteredNames[index], time: Date.now() });
+      }, 500);
+      return () => clearTimeout(handle);
+    }
+  }, [filteredNames, filter, rowVirtualizer]);
 
   return (
     <div className={nameListClass} ref={parentRef}>
@@ -177,11 +259,12 @@ const App: FC = () => {
   const [filter, setFilter] = useState("");
   return (
     <main className={appLayoutClass}>
-      <h1>Team Barbie Detective</h1>
-      <label>
-        Detective{" "}
-        <input placeholder="Your Name" value={filter} onChange={(evt) => setFilter(evt.currentTarget.value)} />
-      </label>
+      <input
+        className="_input"
+        placeholder="Your Name"
+        value={filter}
+        onChange={(evt) => setFilter(evt.currentTarget.value)}
+      />
       <NameList filter={filter} />
     </main>
   );
