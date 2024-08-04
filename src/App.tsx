@@ -123,7 +123,7 @@ const NameList: FC<{
       return;
     }
 
-    audioPlayer.src = `/audio/${index.writtenToPhonetic[selection.name]}.ogg`;
+    audioPlayer.src = `audio/${index.writtenToPhonetic[selection.name]}.ogg`;
     audioPlayer.play();
   }, [selection]);
   const filteredNames = useMemo(() => {
