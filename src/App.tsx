@@ -68,6 +68,21 @@ const appLayoutClass = css`
     }
   `;
 
+const scrollbarClass = css`
+  position: relative;
+  width: 2.4%;
+  height: 2%;
+  background: #333;
+  z-index: 999;
+  top: -2%;
+  left: 54.14%;
+
+  border-radius: 0px;
+  background: #a7a7a7;
+  box-shadow: inset 2px 2px 4px #333,
+            inset -2px -2px 4px #dcdcdc;
+`;
+
 const nameListClass = css`
   position: relative;
   top: 34.8%;
@@ -147,42 +162,6 @@ export const fuzzyMatch = (input: string, comparison: string) => {
 
 const audioPlayer = new Audio();
 
-export function levenshtein(a: string, b: string): number {
-  const an = a ? a.length : 0;
-  const bn = b ? b.length : 0;
-  if (an === 0) {
-    return bn;
-  }
-  if (bn === 0) {
-    return an;
-  }
-  const matrix = new Array<number[]>(bn + 1);
-  for (let i = 0; i <= bn; ++i) {
-    matrix[i] = [an + 1];
-    const row = matrix[i];
-    row[0] = i;
-  }
-  const firstRow = matrix[0];
-  for (let j = 1; j <= an; ++j) {
-    firstRow[j] = j;
-  }
-  for (let i = 1; i <= bn; ++i) {
-    for (let j = 1; j <= an; ++j) {
-      if (b.charAt(i - 1) === a.charAt(j - 1)) {
-        matrix[i][j] = matrix[i - 1][j - 1];
-      } else {
-        matrix[i][j] =
-          Math.min(
-            matrix[i - 1][j - 1], // substitution
-            matrix[i][j - 1], // insertion
-            matrix[i - 1][j], // deletion
-          ) + 1;
-      }
-    }
-  }
-  return matrix[bn][an];
-}
-
 const NameList: FC<{
   filter?: string;
 }> = ({ filter }) => {
@@ -225,33 +204,40 @@ const NameList: FC<{
     }
   }, [filteredNames, filter, rowVirtualizer]);
 
+  const offset = rowVirtualizer.scrollOffset ?? 0;
+  const travelPercentage = offset <= 0 ? 0 : offset / rowVirtualizer.getTotalSize();
+  const remapped = travelPercentage * (23 - -2);
+
   return (
-    <div className={nameListClass} ref={parentRef}>
-      <div className="_list" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
-        {rowVirtualizer.getVirtualItems().map((virtualItem) => (
-          // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
-          <div
-            key={virtualItem.key}
-            className={cx("_entry", filteredNames[virtualItem.index] === selection?.name && "_selected")}
-            style={{
-              height: `${virtualItem.size}px`,
-              transform: `translateY(${virtualItem.start}px)`,
-            }}
-            onClick={() =>
-              setSelection({
-                name: filteredNames[virtualItem.index],
-                time: Date.now(),
-              })
-            }
-          >
-            <div className="_name">{filteredNames[virtualItem.index]}</div>
-            <a href={`audio/${index.writtenToPhonetic[filteredNames[virtualItem.index]]}.ogg`} download>
-              <Icon iconUrl={DownloadIcon} />
-            </a>
-          </div>
-        ))}
+    <>
+      <div className={nameListClass} ref={parentRef}>
+        <div className="_list" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
+          {rowVirtualizer.getVirtualItems().map((virtualItem) => (
+            // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
+            <div
+              key={virtualItem.key}
+              className={cx("_entry", filteredNames[virtualItem.index] === selection?.name && "_selected")}
+              style={{
+                height: `${virtualItem.size}px`,
+                transform: `translateY(${virtualItem.start}px)`,
+              }}
+              onClick={() =>
+                setSelection({
+                  name: filteredNames[virtualItem.index],
+                  time: Date.now(),
+                })
+              }
+            >
+              <div className="_name">{filteredNames[virtualItem.index]}</div>
+              <a href={`audio/${index.writtenToPhonetic[filteredNames[virtualItem.index]]}.ogg`} download>
+                <Icon iconUrl={DownloadIcon} />
+              </a>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+      <div className={scrollbarClass} style={{ top: `${remapped}%` }} />
+    </>
   );
 };
 
