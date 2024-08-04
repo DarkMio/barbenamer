@@ -1,30 +1,19 @@
-# React + TypeScript + Vite
+# Barbenamer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+One day a voice actress had to record more than 9000 names with almost 50.000
+spellings.
 
-Currently, two official plugins are available:
+![image of the app](/public/preview.png)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- inspiration from [Erin Caseys TikTok][1]
+- written and investigated by [Brian Enigma][2]
+- made possible through the reverse engineering efforts by [Alistair Buxton][3]
 
-## Expanding the ESLint configuration
+[1]: https://www.tiktok.com/@erincaseygamers/video/7395967344037727531?_t=8oNOd1NaoYt&_r=1
+[2]: https://netninja.com/2024/08/01/the-mystery-of-detective-barbies-audio/
+[3]: https://github.com/ali1234
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## bun: React + TypeScript + Vite
 
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json', './tsconfig.app.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
-
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+This is a bun project utilizing React, TypeScript and Vite.
+Run the application yourself with `bun run dev`
