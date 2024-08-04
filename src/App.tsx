@@ -95,7 +95,7 @@ const nameListClass = css`
   position: relative;
   top: 34.8%;
   left: -7.5%;
-  max-height: 39.6%;
+  height: 39.6%;
   width: 23.05%;
   margin: 24px auto 24px auto;
   overflow: auto;
@@ -255,8 +255,11 @@ const remap = (x: number, inMin: number, inMax: number, outMin: number, outMax: 
   return clamp ? Math.max(Math.min(value, outMax), outMin) : value;
 };
 
-const lerp = (a: number, b: number, t: number) => {
-  return a + (b - a) * t;
+const lerp = (a: number, b: number, t: number, clamp?: boolean) => {
+  const min = Math.min(a, b);
+  const max = Math.max(a, b);
+  const value = a + (b - a) * t;
+  return clamp ? Math.max(min, Math.min(max, value)) : value;
 };
 
 const App: FC = () => {
@@ -282,7 +285,7 @@ const App: FC = () => {
 
   const gradient = remap(windowSize.width, 1000, 1280, 0, 1, true);
   const optimalScale = windowSize.width < 1280 ? windowSize.width / 800 : 1;
-  const scale = lerp(optimalScale, 1, gradient);
+  const scale = lerp(optimalScale, 1, gradient, true);
   const overhang = windowSize.width < 1280 ? (1280 - windowSize.width) / 2 : 0;
 
   return (
