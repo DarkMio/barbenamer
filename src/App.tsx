@@ -87,6 +87,8 @@ const scrollbarClass = css`
   background: #a7a7a7;
   box-shadow: inset 2px 2px 4px #333,
             inset -2px -2px 4px #dcdcdc;
+
+  transition: 0.15s top linear;
 `;
 
 const nameListClass = css`
@@ -211,8 +213,11 @@ const NameList: FC<{
   }, [filteredNames, filter, rowVirtualizer]);
 
   const offset = rowVirtualizer.scrollOffset ?? 0;
-  const travelPercentage = offset <= 0 ? 0 : offset / rowVirtualizer.getTotalSize();
-  const remapped = travelPercentage * (23 - -2);
+  const height = parentRef.current?.clientHeight ?? 0;
+  const travelPercentage = offset <= 0 ? 0 : offset / (rowVirtualizer.getTotalSize() - height);
+  const remapped = remap(travelPercentage, 0, 1, -2, 23);
+
+  console.log(travelPercentage);
 
   return (
     <>
