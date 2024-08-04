@@ -36,19 +36,25 @@ const makeIndex = () => {
 const index = makeIndex();
 
 const appLayoutClass = css`
-
-
-
     aspect-ratio: 1280/960;
+    width: 1280px;
+    height: 960px;
+    overflow: hidden;
+    overflow-y: hidden;
+    overflow-x: hidden;
     background: url(${BackgroundImage});
+    background-size: cover;
+    align-self: center;
+    scroll-behavior: none;
 
-    width: 100%;
-    height: 100%;
+    top: 50%;
+    left: 50%;
+
 
     > ._input {
       position: relative;
       top: 33.8333%;
-      left: 0.4%;  // 38.90625%;
+      left: 39.4%;  // 38.90625%;
       // right: 38.125%;
       height: 3.566%;
       width: 22.56875%;
@@ -241,10 +247,49 @@ const NameList: FC<{
   );
 };
 
+const remap = (x: number, inMin: number, inMax: number, outMin: number, outMax: number, clamp?: boolean) => {
+  const value = ((x - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
+  return clamp ? Math.max(Math.min(value, outMax), outMin) : value;
+};
+
+const lerp = (a: number, b: number, t: number) => {
+  return a + (b - a) * t;
+};
+
 const App: FC = () => {
   const [filter, setFilter] = useState("");
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+
+  useEffect(() => {
+    const onResize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+      console.log(window.innerWidth);
+    };
+    window.addEventListener("resize", onResize);
+    () => {
+      window.removeEventListener("resize", onResize);
+    };
+  }, []);
+
+  const gradient = remap(windowSize.width, 1000, 1280, 0, 1, true);
+  const optimalScale = windowSize.width < 1280 ? windowSize.width / 800 : 1;
+  const scale = lerp(optimalScale, 1, gradient);
+  const overhang = windowSize.width < 1280 ? (1280 - windowSize.width) / 2 : 0;
+
   return (
-    <main className={appLayoutClass}>
+    <main
+      className={appLayoutClass}
+      style={{
+        transform: `scale(${scale})`,
+        marginLeft: `-${overhang}px`,
+      }}
+    >
       <input
         className="_input"
         placeholder="Your Name"

@@ -29,8 +29,7 @@ body {
 }
 
 #root {
-  aspect-ratio: 1280 / 960;
   max-width: 1280px;
   width: 100%;
-  text-align: center;
+  overflow-x: hidden;
 }
