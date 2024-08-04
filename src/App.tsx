@@ -11,25 +11,29 @@ type PhoneticName = keyof typeof names;
 type WrittenName = string & { __writtenNameBrand: never };
 
 const makeIndex = () => {
-  const allFiles = Object.keys(names) as PhoneticName[];
-  const allNames = new Set([...allFiles.flatMap((x) => names[x as PhoneticName])]);
-  const nameToFile = allFiles.reduce(
-    (obj, name) => {
-      const values = names[name];
-      for (const value of values) {
-        obj[value as WrittenName] = name;
-      }
-      return obj;
-    },
-    {} as Record<WrittenName, PhoneticName>,
-  );
+	const allFiles = Object.keys(names) as PhoneticName[];
+	const allNames = new Set([
+		...allFiles.flatMap((x) => names[x as PhoneticName]),
+	]);
+	const nameToFile = allFiles.reduce(
+		(obj, name) => {
+			const values = names[name];
+			for (const value of values) {
+				obj[value as WrittenName] = name;
+			}
+			return obj;
+		},
+		{} as Record<WrittenName, PhoneticName>,
+	);
 
-  return {
-    phoneticToWritten: names as Record<PhoneticName, WrittenName[]>,
-    writtenToPhonetic: nameToFile,
-    sortedPhonetics: allFiles.sort((a, b) => a.localeCompare(b)),
-    sortedWritten: [...allNames].sort((a, b) => a.localeCompare(b)) as WrittenName[],
-  };
+	return {
+		phoneticToWritten: names as Record<PhoneticName, WrittenName[]>,
+		writtenToPhonetic: nameToFile,
+		sortedPhonetics: allFiles.sort((a, b) => a.localeCompare(b)),
+		sortedWritten: [...allNames].sort((a, b) =>
+			a.localeCompare(b),
+		) as WrittenName[],
+	};
 };
 
 const index = makeIndex();
@@ -90,99 +94,117 @@ const nameListClass = css`
 `;
 
 export const fuzzyMatch = (input: string, comparison: string) => {
-  // biome-ignore lint/style/noParameterAssign: trivial
-  input = input.toLowerCase();
-  // biome-ignore lint/style/noParameterAssign: trivial
-  comparison = comparison.toLowerCase();
-  const inputCharacters = Array.from(input);
-  const comparisonCharacters = Array.from(comparison);
+	// biome-ignore lint/style/noParameterAssign: trivial
+	input = input.toLowerCase();
+	// biome-ignore lint/style/noParameterAssign: trivial
+	comparison = comparison.toLowerCase();
+	const inputCharacters = Array.from(input);
+	const comparisonCharacters = Array.from(comparison);
 
-  while (true) {
-    const character = inputCharacters.shift();
-    if (!character) {
-      return true;
-    }
-    if (!comparisonCharacters.includes(character)) {
-      return false;
-    }
-    const index = comparisonCharacters.indexOf(character);
-    comparisonCharacters.splice(index, 1);
-  }
+	while (true) {
+		const character = inputCharacters.shift();
+		if (!character) {
+			return true;
+		}
+		if (!comparisonCharacters.includes(character)) {
+			return false;
+		}
+		const index = comparisonCharacters.indexOf(character);
+		comparisonCharacters.splice(index, 1);
+	}
 };
 
 const audioPlayer = new Audio();
 
 const NameList: FC<{
-  filter?: string;
+	filter?: string;
 }> = ({ filter }) => {
-  const [selection, setSelection] = useState<{ name: WrittenName; time: number } | undefined>();
+	const [selection, setSelection] = useState<
+		{ name: WrittenName; time: number } | undefined
+	>();
 
-  useEffect(() => {
-    console.log("effect");
-    if (!selection) {
-      return;
-    }
+	useEffect(() => {
+		console.log("effect");
+		if (!selection) {
+			return;
+		}
 
-    audioPlayer.src = `audio/${index.writtenToPhonetic[selection.name]}.ogg`;
-    audioPlayer.play();
-  }, [selection]);
-  const filteredNames = useMemo(() => {
-    if (filter) {
-      return index.sortedWritten.filter((x) => fuzzyMatch(filter, x));
-    }
-    return index.sortedWritten;
-  }, [filter]);
+		audioPlayer.src = `audio/${index.writtenToPhonetic[selection.name]}.ogg`;
+		audioPlayer.play();
+	}, [selection]);
+	const filteredNames = useMemo(() => {
+		if (filter) {
+			return index.sortedWritten.filter((x) => fuzzyMatch(filter, x));
+		}
+		return index.sortedWritten;
+	}, [filter]);
 
-  // The scrollable element for your list
-  const parentRef = useRef<HTMLDivElement | null>(null);
+	// The scrollable element for your list
+	const parentRef = useRef<HTMLDivElement | null>(null);
 
-  // The virtualizer
-  const rowVirtualizer = useVirtualizer({
-    count: filteredNames.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 24,
-  });
+	// The virtualizer
+	const rowVirtualizer = useVirtualizer({
+		count: filteredNames.length,
+		getScrollElement: () => parentRef.current,
+		estimateSize: () => 24,
+	});
 
-  return (
-    <div className={nameListClass} ref={parentRef}>
-      <div className="_list" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
-        {rowVirtualizer.getVirtualItems().map((virtualItem) => (
-          // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
-          <div
-            key={virtualItem.key}
-            className={cx("_entry", filteredNames[virtualItem.index] === selection?.name && "_selected")}
-            style={{
-              height: `${virtualItem.size}px`,
-              transform: `translateY(${virtualItem.start}px)`,
-            }}
-            onClick={() =>
-              setSelection({
-                name: filteredNames[virtualItem.index],
-                time: Date.now(),
-              })
-            }
-          >
-            <div className="_name">{filteredNames[virtualItem.index]}</div>
-            <Icon iconUrl={DownloadIcon} />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+	return (
+		<div className={nameListClass} ref={parentRef}>
+			<div
+				className="_list"
+				style={{ height: `${rowVirtualizer.getTotalSize()}px` }}
+			>
+				{rowVirtualizer.getVirtualItems().map((virtualItem) => (
+					// biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
+					<div
+						key={virtualItem.key}
+						className={cx(
+							"_entry",
+							filteredNames[virtualItem.index] === selection?.name &&
+								"_selected",
+						)}
+						style={{
+							height: `${virtualItem.size}px`,
+							transform: `translateY(${virtualItem.start}px)`,
+						}}
+						onClick={() =>
+							setSelection({
+								name: filteredNames[virtualItem.index],
+								time: Date.now(),
+							})
+						}
+					>
+						<div className="_name">{filteredNames[virtualItem.index]}</div>
+						<a
+							href={`audio/${index.writtenToPhonetic[filteredNames[virtualItem.index]]}.ogg`}
+							download
+						>
+							<Icon iconUrl={DownloadIcon} />
+						</a>
+					</div>
+				))}
+			</div>
+		</div>
+	);
 };
 
 const App: FC = () => {
-  const [filter, setFilter] = useState("");
-  return (
-    <main className={appLayoutClass}>
-      <h1>Team Barbie Detective</h1>
-      <label>
-        Detective{" "}
-        <input placeholder="Your Name" value={filter} onChange={(evt) => setFilter(evt.currentTarget.value)} />
-      </label>
-      <NameList filter={filter} />
-    </main>
-  );
+	const [filter, setFilter] = useState("");
+	return (
+		<main className={appLayoutClass}>
+			<h1>Team Barbie Detective</h1>
+			<label>
+				Detective{" "}
+				<input
+					placeholder="Your Name"
+					value={filter}
+					onChange={(evt) => setFilter(evt.currentTarget.value)}
+				/>
+			</label>
+			<NameList filter={filter} />
+		</main>
+	);
 };
 
 export default App;
