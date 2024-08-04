@@ -1,5 +1,5 @@
 import { css, cx } from "@linaria/core";
-import { memo, useMemo, type ComponentProps, type CSSProperties } from "react";
+import { type CSSProperties, type ComponentProps, memo, useMemo } from "react";
 
 const IconClass = css`
   display: inline-block;

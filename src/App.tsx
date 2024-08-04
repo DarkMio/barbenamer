@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useRef, useState, type FC } from "react";
+import { type FC, useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 import { css, cx } from "@linaria/core";
-import DownloadIcon from "./icons/download-24.svg";
-import names from "./assets/names.json";
 import { Icon } from "./Icon";
+import names from "./assets/names.json";
+import DownloadIcon from "./icons/download-24.svg";
 
 import { useVirtualizer } from "@tanstack/react-virtual";
 
@@ -12,24 +12,23 @@ type WrittenName = string & { __writtenNameBrand: never };
 
 const makeIndex = () => {
   const allFiles = Object.keys(names) as PhoneticName[];
-  const allNames = new Set([
-    ...allFiles.flatMap((x) => names[x as PhoneticName]),
-  ]);
-  const nameToFile = allFiles.reduce((obj, name) => {
-    const values = names[name];
-    for (const value of values) {
-      obj[value as WrittenName] = name;
-    }
-    return obj;
-  }, {} as Record<WrittenName, PhoneticName>);
+  const allNames = new Set([...allFiles.flatMap((x) => names[x as PhoneticName])]);
+  const nameToFile = allFiles.reduce(
+    (obj, name) => {
+      const values = names[name];
+      for (const value of values) {
+        obj[value as WrittenName] = name;
+      }
+      return obj;
+    },
+    {} as Record<WrittenName, PhoneticName>,
+  );
 
   return {
     phoneticToWritten: names as Record<PhoneticName, WrittenName[]>,
     writtenToPhonetic: nameToFile,
     sortedPhonetics: allFiles.sort((a, b) => a.localeCompare(b)),
-    sortedWritten: [...allNames].sort((a, b) =>
-      a.localeCompare(b)
-    ) as WrittenName[],
+    sortedWritten: [...allNames].sort((a, b) => a.localeCompare(b)) as WrittenName[],
   };
 };
 
@@ -116,9 +115,7 @@ const audioPlayer = new Audio();
 const NameList: FC<{
   filter?: string;
 }> = ({ filter }) => {
-  const [selection, setSelection] = useState<
-    { name: WrittenName; time: number } | undefined
-  >();
+  const [selection, setSelection] = useState<{ name: WrittenName; time: number } | undefined>();
 
   useEffect(() => {
     console.log("effect");
@@ -148,19 +145,12 @@ const NameList: FC<{
 
   return (
     <div className={nameListClass} ref={parentRef}>
-      <div
-        className="_list"
-        style={{ height: `${rowVirtualizer.getTotalSize()}px` }}
-      >
+      <div className="_list" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
         {rowVirtualizer.getVirtualItems().map((virtualItem) => (
           // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
           <div
             key={virtualItem.key}
-            className={cx(
-              "_entry",
-              filteredNames[virtualItem.index] === selection?.name &&
-                "_selected"
-            )}
+            className={cx("_entry", filteredNames[virtualItem.index] === selection?.name && "_selected")}
             style={{
               height: `${virtualItem.size}px`,
               transform: `translateY(${virtualItem.start}px)`,
@@ -188,11 +178,7 @@ const App: FC = () => {
       <h1>Team Barbie Detective</h1>
       <label>
         Detective{" "}
-        <input
-          placeholder="Your Name"
-          value={filter}
-          onChange={(evt) => setFilter(evt.currentTarget.value)}
-        />
+        <input placeholder="Your Name" value={filter} onChange={(evt) => setFilter(evt.currentTarget.value)} />
       </label>
       <NameList filter={filter} />
     </main>

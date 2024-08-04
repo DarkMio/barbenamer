@@ -1,9 +1,10 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "files": {
-    "include": [
-      "src/**/*.ts",
-      "src/**/*.tsx"
-    ]
+    "include": ["src/**/*.ts", "src/**/*.tsx"]
+  },
+  "formatter": {
+    "indentStyle": "space",
+    "lineWidth": 120
   }
 }
