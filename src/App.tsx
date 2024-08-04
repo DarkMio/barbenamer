@@ -217,8 +217,6 @@ const NameList: FC<{
   const travelPercentage = offset <= 0 ? 0 : offset / (rowVirtualizer.getTotalSize() - height);
   const remapped = remap(travelPercentage, 0, 1, -2, 23);
 
-  console.log(travelPercentage);
-
   return (
     <>
       <div className={nameListClass} ref={parentRef}>
