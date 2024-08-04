@@ -215,7 +215,7 @@ const NameList: FC<{
   const offset = rowVirtualizer.scrollOffset ?? 0;
   const height = parentRef.current?.clientHeight ?? 0;
   const travelPercentage = offset <= 0 ? 0 : offset / (rowVirtualizer.getTotalSize() - height);
-  const remapped = remap(travelPercentage, 0, 1, -2, 23);
+  const remapped = remap(travelPercentage, 0, 1, -2, 23, true);
 
   return (
     <>
