@@ -21,7 +21,14 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    "paths": {
+      "#assets/*": ["./src/assets/*"],
+      "#icons/*": ["./src/icons/*"],
+      "#components/*": ["./src/components/*"],
+      "#app/*": ["./src/app/*"]
+    }
   },
   "include": ["src"]
 }
