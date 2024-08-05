@@ -86,7 +86,7 @@ export const NameList: FC<{
       return;
     }
 
-    audioPlayer.src = `audio/${dataset.writtenToPhonetic[selection.name]}.ogg`;
+    audioPlayer.src = `audio/${dataset.writtenToPhonetic[selection.name]}.mp3`;
     audioPlayer.play();
   }, [selection]);
   const filteredNames = useMemo(() => {
