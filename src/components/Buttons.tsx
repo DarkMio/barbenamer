@@ -1,6 +1,6 @@
 import { css, cx } from "@linaria/core";
-import { type FC, useContext } from "react";
-import { appContext, useApp } from "../hooks/useAudio";
+import type { FC } from "react";
+import { useApp } from "../hooks/useAudio";
 
 const buttonClass = css`
   position: absolute;
@@ -32,7 +32,7 @@ const buttonClass = css`
 export const Buttons: FC<{
   onAcceptClicked?: () => unknown;
 }> = ({ onAcceptClicked }) => {
-  const app = useContext(appContext);
+  const app = useApp();
   return (
     <>
       <button

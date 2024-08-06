@@ -1,10 +1,10 @@
 import { css } from "@linaria/core";
-import { type FC, useCallback, useEffect, useState } from "react";
+import { type FC, useEffect, useState } from "react";
 import { lerp, remap } from "#app/math";
 import { Buttons } from "#components/Buttons";
 import { NameList } from "#components/NameList";
 import BackgroundImage from "./assets/barbie-screen.png";
-import { type AppContext, appContext } from "./hooks/useAudio";
+import { appContext } from "./hooks/useAudio";
 
 const appLayoutClass = css`
     aspect-ratio: 1280/960;
