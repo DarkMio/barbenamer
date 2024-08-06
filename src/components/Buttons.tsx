@@ -49,7 +49,7 @@ export const Buttons: FC<{
         Check
       </button>
 
-      <a className={cx(buttonClass, "_save")} href={app.src} download={app.src}>
+      <a className={cx(buttonClass, "_save")} href={app.src} download={!!app.src}>
         Save
       </a>
     </>
