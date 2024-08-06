@@ -8,6 +8,7 @@ import { closest } from "fastest-levenshtein";
 import { dataset } from "#app/dataset";
 import { fuzzyMatch } from "#app/fuzzyMatch.ts";
 import type { WrittenName } from "#app/types";
+import { useApp } from "../hooks/useAudio.ts";
 import { Scrollbar } from "./Scrollbar.tsx";
 
 const nameListClass = css`
@@ -73,22 +74,22 @@ const nameListClass = css`
   }
 `;
 
-const audioPlayer = new Audio();
+export const NameListAudioKey = "_audio-list-audio-key" as const;
 
 export const NameList: FC<{
   filter?: string;
 }> = ({ filter }) => {
-  const [selection, setSelection] = useState<{ name: WrittenName; time: number } | undefined>();
+  const [selection, setSelection] = useState<{ name: WrittenName; played?: boolean } | undefined>();
   const [travelPercentage, setTravelPercentage] = useState(0);
+  const app = useApp();
 
   useEffect(() => {
-    if (!selection) {
+    if (!selection || selection.played) {
       return;
     }
-
-    audioPlayer.src = `audio/${dataset.writtenToPhonetic[selection.name]}.mp3`;
-    audioPlayer.play();
-  }, [selection]);
+    setSelection({ ...selection, played: true });
+    app.play(`audio/${dataset.writtenToPhonetic[selection.name]}.mp3`);
+  }, [selection, app.play]);
   const filteredNames = useMemo(() => {
     if (filter) {
       return dataset.sortedWritten.filter((x) => fuzzyMatch(filter, x));
@@ -122,7 +123,7 @@ export const NameList: FC<{
       const index = filteredNames.indexOf(match);
       rowVirtualizer.scrollToIndex(index, { behavior: "auto", align: "center" });
       const handle = setTimeout(() => {
-        setSelection({ name: filteredNames[index], time: Date.now() });
+        setSelection({ name: filteredNames[index] });
       }, 500);
 
       setTravelPercentage(index / filteredNames.length);
@@ -145,7 +146,6 @@ export const NameList: FC<{
               onClick={() =>
                 setSelection({
                   name: filteredNames[virtualItem.index],
-                  time: Date.now(),
                 })
               }
             >

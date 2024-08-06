@@ -1,8 +1,10 @@
 import { css } from "@linaria/core";
-import { type FC, useEffect, useState } from "react";
+import { type FC, useCallback, useEffect, useState } from "react";
 import { lerp, remap } from "#app/math";
+import { Buttons } from "#components/Buttons";
 import { NameList } from "#components/NameList";
 import BackgroundImage from "./assets/barbie-screen.png";
+import { type AppContext, appContext } from "./hooks/useAudio";
 
 const appLayoutClass = css`
     aspect-ratio: 1280/960;
@@ -57,7 +59,6 @@ const App: FC = () => {
         width: window.innerWidth,
         height: window.innerHeight,
       });
-      console.log(window.innerWidth);
     };
     window.addEventListener("resize", onResize);
     () => {
@@ -70,6 +71,19 @@ const App: FC = () => {
   const scale = lerp(optimalScale, 1, gradient, true);
   const overhang = windowSize.width < 1280 ? (1280 - windowSize.width) / 2 : 0;
 
+  const [audio, _setAudio] = useState(new Audio());
+  const [src, setSrc] = useState<string | undefined>(undefined);
+
+  const play = (newSrc?: string) => {
+    if (newSrc !== src) {
+      setSrc(newSrc);
+      if (newSrc) {
+        audio.src = newSrc;
+      }
+    }
+    audio.play();
+  };
+
   return (
     <main
       className={appLayoutClass}
@@ -78,13 +92,16 @@ const App: FC = () => {
         marginLeft: `-${overhang}px`,
       }}
     >
-      <input
-        className="_input"
-        placeholder="Your Name"
-        value={filter}
-        onChange={(evt) => setFilter(evt.currentTarget.value)}
-      />
-      <NameList filter={filter} />
+      <appContext.Provider value={{ audio, src, play }}>
+        <input
+          className="_input"
+          placeholder="Your Name"
+          value={filter}
+          onChange={(evt) => setFilter(evt.currentTarget.value)}
+        />
+        <NameList filter={filter} />
+        <Buttons />
+      </appContext.Provider>
     </main>
   );
 };
