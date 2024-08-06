@@ -150,11 +150,7 @@ export const NameList: FC<{
               }
             >
               <div className="_name">{filteredNames[virtualItem.index]}</div>
-              <a
-                className="_link"
-                href={`audio/${dataset.writtenToPhonetic[filteredNames[virtualItem.index]]}.ogg`}
-                download
-              >
+              <a className="_link" href={app.src} download={!!app.src}>
                 <Icon iconUrl={DownloadIcon} />
               </a>
             </div>
